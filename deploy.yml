@@ -1,0 +1,8 @@
+instances:
+  -
+    id: 1
+    key: "/root/.ssh/id_rsa"
+    server: "develop@10.200.88.200"
+    source: "/root/GolandProjects/GitDeployer/GitDeployer"
+    destination: "/USAProject/USA-LdapFace"
+    service_name: "puller"
