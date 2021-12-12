@@ -12,7 +12,9 @@ import (
 )
 
 type LdapConnection struct {
-	Conn *ldap.Conn
+	Conn     *ldap.Conn
+	Login    string
+	Password string
 }
 
 func checkRequersStructure(need []string, got map[string]string) bool {
@@ -70,14 +72,27 @@ func NewLdapClient(c *config.Config) *LdapConnection {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = l.Bind(c.Ldap_login, c.Ldap_password)
-	if err != nil {
-		log.Fatal(err)
+	return &LdapConnection{
+		Login:    c.Ldap_login,
+		Password: c.Ldap_password,
+		Conn:     l,
 	}
-	return &LdapConnection{l}
+}
+
+func (l *LdapConnection) BindLdap() *ldap.Conn {
+	err := l.Conn.Bind(l.Login, l.Password)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	return l.Conn
 }
 
 func (l *LdapConnection) LdapSearchUser(filter, baseDN string) (res []string) {
+	if l.BindLdap() == nil {
+		fmt.Println("Error when bind!")
+		return
+	}
 	searchReq := ldap.NewSearchRequest(baseDN, ldap.ScopeWholeSubtree, 0, 0, 0, false, filter, []string{"sAMAccountName"}, []ldap.Control{})
 	result, err := l.Conn.Search(searchReq)
 	if err != nil {
