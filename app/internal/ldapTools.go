@@ -82,6 +82,7 @@ func (l *LdapConnection) LdapSearchUser(filter, baseDN string) (res []string) {
 	result, err := l.Conn.Search(searchReq)
 	if err != nil {
 		fmt.Errorf("failed to query LDAP: %w", err)
+		return
 	}
 	for _, v := range result.Entries {
 		res = append(res, v.Attributes[0].Values[0])
