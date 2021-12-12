@@ -1,0 +1,3 @@
+ldap_server: "ldaps://DC-TEST.test.lab:636"
+ldap_login: "test\\admin"
+ldap_password: "Te$t0vP@$$"
