@@ -2,6 +2,7 @@ package internal
 
 import (
 	"USALdapNewWave/config"
+	"USALdapNewWave/randomHash"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"golang.org/x/text/encoding/unicode"
 	"log"
 	"net/http"
+	"time"
 )
 
 type LdapConnection struct {
@@ -60,6 +62,29 @@ func (l *LdapConnection) LdapHandler(w http.ResponseWriter, req *http.Request) {
 		}
 		result := l.LdapSearchUser(params["user"], params["baseDN"])
 		fmt.Println(result)
+	case "DropPassword":
+		fmt.Fprintf(w, "Do drop password: ")
+		if !checkRequersStructure([]string{"user", "baseDN"}, params) {
+			fmt.Fprintf(w, "Wrong parameters, good bye", val)
+			return
+		}
+
+		newPassword:=""
+		i:=0
+		for i=1; i<4; i++{
+			newPassword = randomHash.RandomString(10)
+			fmt.Println("Attempt #",i)
+			if l.LdapChangeUserPassword(params["user"], params["baseDN"], newPassword)==true{
+				break
+			}
+			fmt.Println("==>",newPassword)
+			time.Sleep(100*time.Millisecond)
+		}
+		if i>=5{
+			fmt.Println("Max attempts! Exiting...")
+			return
+		}
+		fmt.Fprintf(w, newPassword)
 	default:
 		fmt.Fprintf(w, "Unknown command: %s", val)
 	}
@@ -135,19 +160,35 @@ func (l *LdapConnection) LdapCreateNewUser(name, group string) {
 	fmt.Println("DONE")
 }
 
-func (l *LdapConnection) LdapChangeUserPassword(user, group, newpassword string) {
+func (l *LdapConnection) LdapChangeUserPassword(user, group, newpassword string) bool {
+	l1 := NewLdapClient(config.Cfg)
+	if l1.Conn==nil{
+		log.Println(l1)
+		return false
+	}
+	defer l1.Conn.Close()
+	l1.BindLdap()
+
+	if l.BindLdap() == nil {
+		fmt.Println("Error when bind!")
+		return false
+	}
 	utf16 := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM)
 	pwdEncoded, err := utf16.NewEncoder().String("\"" + newpassword + "\"")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return false
 	}
 
 	modReq := ldap.NewModifyRequest(fmt.Sprintf("CN=%s,%s", user, group), []ldap.Control{})
 	modReq.Replace("unicodePwd", []string{pwdEncoded})
-	if err := l.Conn.Modify(modReq); err != nil {
-		log.Fatal("error setting user password:", modReq, err)
+	if err := l1.Conn.Modify(modReq); err != nil {
+		log.Println("error setting user password:", modReq, err)
+		return false
 	}
+
 	fmt.Println("DONE")
+	return true
 }
 
 func (l *LdapConnection) LdapUserActivate(user, group string) {

@@ -27,6 +27,7 @@ func main() {
 
 	l := internal.NewLdapClient(config.Cfg)
 
+
 	http.HandleFunc("/ldap", l.LdapHandler)
 	log.Println("Starting webserver...")
 	err = http.ListenAndServe(":8085", nil)
