@@ -1,3 +1,8 @@
-ldap_server: "ldaps://test.lab:636"
-ldap_login: "test\\admin"
-ldap_password: "Te$t0vP@$$"
+servers:
+  -
+    domain: "test"
+    server: "ldaps://test.lab:636"
+    CN: "CN=Users,DC=test,DC=lab"
+    login: "test\\admin"
+    password: "Te$t0vP@$$"
+

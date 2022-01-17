@@ -16,7 +16,7 @@ func TestRequest(t *testing.T) {
 		client := &http.Client{}
 		str := `{
 		"user":"A.Kikos3",
-			"baseDN": "CN=Users,DC=test,DC=lab",
+			"domain": "test",
 			"command": "DropPassword"
 	}`
 		req, err := http.NewRequest("POST", "http://127.0.0.1:8085/ldap", bytes.NewReader([]byte(str)))
