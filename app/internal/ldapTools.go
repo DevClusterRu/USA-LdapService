@@ -15,8 +15,6 @@ import (
 
 type LdapConnection struct {
 	Conn     *ldap.Conn
-	Login    string
-	Password string
 }
 
 func checkRequersStructure(need []string, got map[string]string) bool {
