@@ -5,4 +5,10 @@ servers:
     CN: "CN=Users,DC=test,DC=lab"
     login: "test\\admin"
     password: "Te$t0vP@$$"
+  -
+    domain: "test"
+    server: "ldaps://test.lab:636"
+    CN: "CN=Users,DC=test,DC=lab"
+    login: "test\\admin"
+    password: "Te$t0vP@$$"
 
