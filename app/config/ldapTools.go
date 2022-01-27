@@ -1,7 +1,6 @@
-package internal
+package config
 
 import (
-	"USALdapNewWave/config"
 	"USALdapNewWave/randomHash"
 	"crypto/tls"
 	"encoding/json"
@@ -25,7 +24,7 @@ func checkRequersStructure(need []string, got map[string]string) bool {
 	return true
 }
 
-func LdapHandler(w http.ResponseWriter, req *http.Request) {
+func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 	var params map[string]string
 	err := json.NewDecoder(req.Body).Decode(&params)
 	if err != nil {
@@ -71,7 +70,7 @@ func LdapHandler(w http.ResponseWriter, req *http.Request) {
 		for i = 1; i < 4; i++ {
 			newPassword = randomHash.RandomString(10)
 			fmt.Println("Attempt #", i)
-			if LdapChangeUserPassword(params["domain"], params["user"], newPassword) == true {
+			if c.LdapChangeUserPassword(params["domain"], params["user"], newPassword) == true {
 				break
 			}
 			fmt.Println("==>", newPassword)
@@ -88,14 +87,14 @@ func LdapHandler(w http.ResponseWriter, req *http.Request) {
 
 }
 
-func GetConn(creds config.LdapCreds) *ldap.Conn {
+func (c *Config) GetConn(server string) *ldap.Conn {
 	tlsConfig := &tls.Config{InsecureSkipVerify: true}
-	conn, err := ldap.DialURL(creds.Server, ldap.DialWithTLSConfig(tlsConfig))
+	conn, err := ldap.DialURL(c.Servers[server].Urls[0], ldap.DialWithTLSConfig(tlsConfig))
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
-	err = conn.Bind(creds.Login, creds.Password)
+	err = conn.Bind(c.Servers[server].Login, c.Servers[server].Password)
 	if err != nil {
 		log.Println(err)
 		return nil
@@ -151,18 +150,19 @@ func LdapCreateNewUser(name, group string) {
 	//fmt.Println("DONE")
 }
 
-func LdapChangeUserPassword(domain, user, newpassword string) bool {
+func (c *Config) LdapChangeUserPassword(domain, user, newpassword string) bool {
 
-	conn:=GetConn(config.Cfg.LdapConnections[domain])
+	conn:= c.GetConn(domain)
 	defer conn.Close()
 	utf16 := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM)
+
 	pwdEncoded, err := utf16.NewEncoder().String("\"" + newpassword + "\"")
 	if err != nil {
 		log.Println(err)
 		return false
 	}
 
-	modReq := ldap.NewModifyRequest(fmt.Sprintf("CN=%s,%s", user, config.Cfg.LdapConnections[domain].CN), []ldap.Control{})
+	modReq := ldap.NewModifyRequest(user, []ldap.Control{})
 	modReq.Replace("unicodePwd", []string{pwdEncoded})
 	if err := conn.Modify(modReq); err != nil {
 		log.Println("error setting user password:", modReq, err)

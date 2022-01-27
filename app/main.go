@@ -2,7 +2,6 @@ package main
 
 import (
 	"USALdapNewWave/config"
-	"USALdapNewWave/internal"
 	"github.com/kardianos/osext"
 	"log"
 	"net/http"
@@ -25,7 +24,7 @@ func main() {
 		}
 	}
 
-	http.HandleFunc("/ldap", internal.LdapHandler)
+	http.HandleFunc("/ldap", config.Cfg.LdapHandler)
 	log.Println("Starting webserver...")
 	err = http.ListenAndServe(":8085", nil)
 	if err != nil {

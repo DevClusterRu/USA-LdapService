@@ -8,22 +8,12 @@ import (
 	"path"
 )
 
-type LdapCreds struct {
-	Server string
-	Login string
-	Password string
-	CN string
-}
-
 type Config struct {
-	Servers   []struct{
-		Domain string `yaml:"domain"`
-		Server string `yaml:"server"`
+	Servers   map[string]struct{
 		Login string `yaml:"login"`
 		Password string `yaml:"password"`
-		CN string `yaml:"CN"`
+		Urls []string `yaml:"urls"`
 	} `yaml:"servers"`
-	LdapConnections map[string]LdapCreds
 }
 
 var Cfg *Config
@@ -46,16 +36,16 @@ func NewConfig(fileName string) (config *Config, err error) {
 		err = fmt.Errorf("file %s yaml unmarshal error: %v", fileName, err)
 	}
 
-	config.LdapConnections = make(map[string]LdapCreds)
-
-	for _, v:= range config.Servers {
-		config.LdapConnections[v.Domain] = LdapCreds{
-			v.Server,
-			v.Login,
-			v.Password,
-			v.CN,
-		}
-	}
+	//config.LdapConnections = make(map[string]LdapCreds)
+	//
+	//for _, v:= range config.Servers {
+	//	config.LdapConnections[v.Domain] = LdapCreds{
+	//		v.Server,
+	//		v.Login,
+	//		v.Password,
+	//		v.CN,
+	//	}
+	//}
 
 
 	return config, err

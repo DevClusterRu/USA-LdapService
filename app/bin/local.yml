@@ -1,14 +1,67 @@
 servers:
-  -
-    domain: "test"
-    server: "ldaps://test.lab:636"
-    CN: "CN=Users,DC=test,DC=lab"
-    login: "test\\admin"
-    password: "Te$t0vP@$$"
-  -
-    domain: "test"
-    server: "ldaps://test.lab:636"
-    CN: "CN=Users,DC=test,DC=lab"
-    login: "test\\admin"
-    password: "Te$t0vP@$$"
+  ar.local:
+    login: suzaccmgr
+    password: SUZ@r$en@1
+    urls:
+      - "ar-srv-dc1.ar.local"
+      - "ar-srv-dc2.ar.local"
+  avangard.local:
+    login: suzaccmgr
+    password: SUZ@v@n9@rd
+    urls:
+      - "ac-srv-dc.avangard.local"
+      - "ac-srv-dc2.avangard.local"
+  lrc.local:
+    login: suzaccmgr
+    password: SUZL@ndr0ver
+    urls:
+      - "lrc-srv-dc1.lrc.local"
+      - "lrc-srv-dc2.lrc.local"
+  fc-redut.local:
+    login: suzaccmgr
+    password: SUZ40rdKR
+    urls:
+      - "fc-srv-dc.fc-redut.local"
+      - "fc-srv-dc2.fc-redut.local"
+  nc.local:
+    login: suzaccmgr
+    password: SUZN1$$@n
+    urls:
+      - "nc-srv-dc1.nc.local"
+      - "nc-srv-dc2.nc.local"
+  cl.local:
+    login: suzaccmgr
+    password: SUZC1ient$
+    urls:
+      - "cl-srv-dc1.cl.local"
+      - "cl-srv-dc2.cl.local"
+  kt.local:
+    login: suzaccmgr
+    password: SUZKumt19ey
+    urls:
+      - "kt-srv-dc.kt.local"
+      - "kt-srv-dc5.kt.local"
+      - "kt-srv-dc4.kt.local"
+  ps.local:
+    login: suzaccmgr
+    password: SUZP1t$t0p
+    urls:
+      - "ps-srv-dc.ps.local"
+  rt.local:
+    login: suzaccmgr
+    password: SUZRemTechn1k@
+    urls:
+      - "rt-srv-dc1.rt.local"
+      - "rt-srv-dc2.rt.local"
+  av.local:
+    login: suzaccmgr
+    password: SUZ@ver$
+    urls:
+      - "av-srv-dc1.av.local"
+  vsmk.local:
+    login: suzaccmgr
+    password: SUZV$mK
+    urls:
+      - "vsmk-srv-dc1.vsmk.local"
+      -
 
