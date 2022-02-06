@@ -1,4 +1,4 @@
-module USALdapNewWave
+module USA-LdapService
 
 go 1.17
 
