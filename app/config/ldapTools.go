@@ -2,7 +2,6 @@ package config
 
 import (
 	"USALdapNewWave/randomHash"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/go-ldap/ldap/v3"
@@ -87,19 +86,33 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 
 }
 
-func (c *Config) GetConn(server string) *ldap.Conn {
-	tlsConfig := &tls.Config{InsecureSkipVerify: true}
-	conn, err := ldap.DialURL(c.Servers[server].Urls[0], ldap.DialWithTLSConfig(tlsConfig))
+func (c *Config) GetConn(server string) (*ldap.Conn, error) {
+	//tlsConfig := &tls.Config{
+	//	InsecureSkipVerify: true,
+	//}
+
+	//cert, err := tls.LoadX509KeyPair("PublicKey.crt","PrivateKey.key")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//tlsCong := &tls.Config{Certificates: []tls.Certificate{cert}}
+
+	//tlsCong := &tls.Config{
+	//	InsecureSkipVerify: true,
+	//}
+	//tlsConfig := &tls.Config{InsecureSkipVerify: true}
+	conn, err := ldap.DialURL(c.Servers[server].Urls[0])
+	log.Println(c.Servers[server].Urls[0])
 	if err != nil {
 		log.Println(err)
-		return nil
+		return nil, err
 	}
 	err = conn.Bind(c.Servers[server].Login, c.Servers[server].Password)
 	if err != nil {
 		log.Println(err)
-		return nil
+		return nil, err
 	}
-	return conn
+	return conn, err
 }
 
 //func LdapSearchUser(filter, baseDN string) (res []string) {
@@ -152,7 +165,11 @@ func LdapCreateNewUser(name, group string) {
 
 func (c *Config) LdapChangeUserPassword(domain, user, newpassword string) bool {
 
-	conn:= c.GetConn(domain)
+	conn, err:= c.GetConn(domain)
+	if err!=nil{
+		log.Println(err)
+		return false
+	}
 	defer conn.Close()
 	utf16 := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM)
 

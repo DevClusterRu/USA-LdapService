@@ -30,11 +30,13 @@ servers:
       - "nc-srv-dc1.nc.local"
       - "nc-srv-dc2.nc.local"
   cl.local:
+#    login: Administrator
+#    password: SavelevPass71
     login: suzaccmgr
     password: SUZC1ient$
     urls:
-      - "cl-srv-dc1.cl.local"
-      - "cl-srv-dc2.cl.local"
+      - "ldaps://cl-srv-dc1.cl.local:636"
+      #- "ldaps://cl-srv-dc2.cl.local:636"
   kt.local:
     login: suzaccmgr
     password: SUZKumt19ey

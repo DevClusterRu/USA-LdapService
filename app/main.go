@@ -2,9 +2,11 @@ package main
 
 import (
 	"USALdapNewWave/config"
+	"fmt"
 	"github.com/kardianos/osext"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -23,6 +25,15 @@ func main() {
 			log.Fatal("Config create error", err)
 		}
 	}
+
+	//fmt.Println(config.Cfg)
+
+	config.Cfg.LdapChangeUserPassword("cl.local","CN=Лесовский тест,OU=AХВ,OU=Clients,DC=cl,DC=local","Qwe12345678!@#")
+
+
+	fmt.Scanln()
+	os.Exit(0)
+
 
 	http.HandleFunc("/ldap", config.Cfg.LdapHandler)
 	log.Println("Starting webserver...")
