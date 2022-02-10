@@ -1,7 +1,7 @@
 package config
 
 import (
-	"USALdapNewWave/randomHash"
+	"USA-LdapService/randomHash"
 	"encoding/json"
 	"fmt"
 	"github.com/go-ldap/ldap/v3"
@@ -10,9 +10,6 @@ import (
 	"net/http"
 	"time"
 )
-
-
-
 
 func checkRequersStructure(need []string, got map[string]string) bool {
 	for _, v := range need {
@@ -165,8 +162,8 @@ func LdapCreateNewUser(name, group string) {
 
 func (c *Config) LdapChangeUserPassword(domain, user, newpassword string) bool {
 
-	conn, err:= c.GetConn(domain)
-	if err!=nil{
+	conn, err := c.GetConn(domain)
+	if err != nil {
 		log.Println(err)
 		return false
 	}
