@@ -20,7 +20,16 @@ func checkRequersStructure(need []string, got map[string]string) bool {
 	return true
 }
 
+
 func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
+
+	for name, values := range req.Header {
+		// Loop over all values for the name.
+		for _, value := range values {
+			fmt.Println(name, value)
+		}
+	}
+
 	var params map[string]string
 	err := json.NewDecoder(req.Body).Decode(&params)
 	if err != nil {
