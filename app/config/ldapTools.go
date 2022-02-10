@@ -23,14 +23,9 @@ func checkRequersStructure(need []string, got map[string]string) bool {
 
 func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 
-	fmt.Println(req.Header)
+	username, password, ok1 := req.BasicAuth()
 
-	for name, values := range req.Header {
-		// Loop over all values for the name.
-		for _, value := range values {
-			fmt.Println(name, value)
-		}
-	}
+	fmt.Println(username, password, ok1)
 
 	var params map[string]string
 	err := json.NewDecoder(req.Body).Decode(&params)
