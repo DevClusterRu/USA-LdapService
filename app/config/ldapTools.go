@@ -23,6 +23,8 @@ func checkRequersStructure(need []string, got map[string]string) bool {
 
 func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 
+	fmt.Println(req.Header)
+
 	for name, values := range req.Header {
 		// Loop over all values for the name.
 		for _, value := range values {
