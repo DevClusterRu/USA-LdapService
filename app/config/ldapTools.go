@@ -20,12 +20,7 @@ func checkRequersStructure(need []string, got map[string]string) bool {
 	return true
 }
 
-
 func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
-
-	username, password, ok1 := req.BasicAuth()
-
-	fmt.Println(username, password, ok1)
 
 	var params map[string]string
 	err := json.NewDecoder(req.Body).Decode(&params)
