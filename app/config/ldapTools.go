@@ -75,6 +75,7 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 			time.Sleep(100 * time.Millisecond)
 		}
 		fmt.Fprintf(w, "Max attempts! Exiting...")
+		return
 	default:
 		fmt.Fprintf(w, "Unknown command: %s", val)
 	}
