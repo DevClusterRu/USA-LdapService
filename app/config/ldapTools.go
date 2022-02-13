@@ -68,16 +68,13 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 			newPassword = randomHash.RandomString(10)
 			fmt.Println("Attempt #", i)
 			if c.LdapChangeUserPassword(params["domain"], params["user"], newPassword) == true {
-				break
+				fmt.Println("==>", newPassword)
+				fmt.Fprintf(w, newPassword)
+				return
 			}
-			fmt.Println("==>", newPassword)
 			time.Sleep(100 * time.Millisecond)
 		}
-		if i >= 5 {
-			fmt.Fprintf(w, "Max attempts! Exiting...")
-			return
-		}
-		fmt.Fprintf(w, newPassword)
+		fmt.Fprintf(w, "Max attempts! Exiting...")
 	default:
 		fmt.Fprintf(w, "Unknown command: %s", val)
 	}
