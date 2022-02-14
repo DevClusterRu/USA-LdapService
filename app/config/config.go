@@ -8,6 +8,8 @@ import (
 	"path"
 )
 
+
+
 type Config struct {
 	Servers   map[string]struct{
 		Login string `yaml:"login"`

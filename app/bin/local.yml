@@ -1,4 +1,9 @@
 servers:
+  test.lab:
+    login: admin
+    password: Te$t0vP@$$
+    urls:
+      - "ldaps://DC-TEST.test.lab:636"
   ar.local:
     login: suzaccmgr
     password: SUZ@r$en@1

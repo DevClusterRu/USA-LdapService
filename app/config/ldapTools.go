@@ -2,6 +2,7 @@ package config
 
 import (
 	"USA-LdapService/randomHash"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/go-ldap/ldap/v3"
@@ -11,6 +12,11 @@ import (
 	"time"
 )
 
+type Answer struct {
+	Status bool `json:"result"`
+	Response string `json:"response"`
+}
+
 func checkRequersStructure(need []string, got map[string]string) bool {
 	for _, v := range need {
 		if _, ok := got[v]; !ok {
@@ -18,6 +24,15 @@ func checkRequersStructure(need []string, got map[string]string) bool {
 		}
 	}
 	return true
+}
+
+func answerPack(status bool, response string) string  {
+	a:=Answer{
+		Status: status,
+		Response: response,
+	}
+	b,_:=json.Marshal(a)
+	return string(b)
 }
 
 
@@ -61,31 +76,47 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 	//	result := l.LdapSearchUser(params["user"], params["baseDN"])
 	//	fmt.Println(result)
 	case "DropPassword":
-		fmt.Fprintf(w, "Do drop password: ")
 		if !checkRequersStructure([]string{"user", "domain"}, params) {
 			fmt.Fprintf(w, "Wrong parameters, good bye", val)
 			return
 		}
-
 		newPassword := ""
+		errors:=""
 		i := 0
 		for i = 1; i < 4; i++ {
 			newPassword = randomHash.RandomString(10)
 			fmt.Println("Attempt #", i)
-			if c.LdapChangeUserPassword(params["domain"], params["user"], newPassword) == true {
-				break
+			err:= c.LdapChangeUserPassword(params["domain"], params["user"], newPassword)
+			if err==nil{
+				fmt.Fprintf(w, answerPack(true, newPassword))
+				return
 			}
-			fmt.Println("==>", newPassword)
+			errors+="\n"+err.Error()
 			time.Sleep(100 * time.Millisecond)
 		}
-		if i >= 5 {
-			fmt.Fprintf(w, "Max attempts! Exiting...")
+		fmt.Fprintf(w, answerPack(false, errors))
+	case "CreateUser":
+		if !checkRequersStructure([]string{"name", "group", "domain"}, params) {
+			fmt.Fprintf(w, "Wrong parameters, good bye", val)
 			return
 		}
-		fmt.Fprintf(w, newPassword)
+		i := 0
+		errors:=""
+		for i = 1; i < 4; i++ {
+			fmt.Println("Attempt #", i)
+			err:= c.LdapCreateNewUser(params["name"],params["group"],params["domain"])
+			if err==nil{
+				fmt.Fprintf(w, answerPack(true, "success"))
+				return
+			}
+			errors+="\n"+err.Error()
+			time.Sleep(100 * time.Millisecond)
+		}
+		fmt.Fprintf(w, answerPack(false, errors))
 	default:
 		fmt.Fprintf(w, "Unknown command: %s", val)
 	}
+
 
 }
 
@@ -104,7 +135,7 @@ func (c *Config) GetConn(server string) (*ldap.Conn, error) {
 	//	InsecureSkipVerify: true,
 	//}
 	//tlsConfig := &tls.Config{InsecureSkipVerify: true}
-	conn, err := ldap.DialURL(c.Servers[server].Urls[0])
+	conn, err := ldap.DialURL(c.Servers[server].Urls[0], ldap.DialWithTLSConfig(&tls.Config{InsecureSkipVerify: true}))
 	log.Println(c.Servers[server].Urls[0])
 	if err != nil {
 		log.Println(err)
@@ -150,47 +181,47 @@ func LdapCreateGroup(group, baseDN string) {
 	//fmt.Println("DONE")
 }
 
-func LdapCreateNewUser(name, group string) {
-	//addReq := ldap.NewAddRequest(fmt.Sprintf("CN=%s,%s", name, group), []ldap.Control{})
-	//addReq.Attribute("objectClass", []string{"top", "organizationalPerson", "user", "person"})
-	//addReq.Attribute("name", []string{name})
-	//addReq.Attribute("sAMAccountName", []string{name})
-	//addReq.Attribute("userAccountControl", []string{fmt.Sprintf("%d", 0x0202)})
-	//addReq.Attribute("instanceType", []string{fmt.Sprintf("%d", 0x00000004)})
-	//addReq.Attribute("userPrincipalName", []string{fmt.Sprintf("%s@example.com", name)})
-	//addReq.Attribute("accountExpires", []string{fmt.Sprintf("%d", 0x00000000)})
-	//
-	//if err := l.Conn.Add(addReq); err != nil {
-	//	log.Fatal("error adding service:", addReq, err)
-	//}
-	//fmt.Println("DONE")
+func  (c *Config) LdapCreateNewUser(name, group, domain string) error{
+	conn, err := c.GetConn(domain)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	addReq := ldap.NewAddRequest(fmt.Sprintf("CN=%s,%s", name, group), []ldap.Control{})
+	addReq.Attribute("objectClass", []string{"top", "organizationalPerson", "user", "person"})
+	addReq.Attribute("name", []string{name})
+	addReq.Attribute("sAMAccountName", []string{name})
+	addReq.Attribute("userAccountControl", []string{fmt.Sprintf("%d", 0x0202)})
+	addReq.Attribute("instanceType", []string{fmt.Sprintf("%d", 0x00000004)})
+	addReq.Attribute("userPrincipalName", []string{fmt.Sprintf("%s@example.com", name)})
+	addReq.Attribute("accountExpires", []string{fmt.Sprintf("%d", 0x00000000)})
+	if err := conn.Add(addReq); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (c *Config) LdapChangeUserPassword(domain, user, newpassword string) bool {
+func (c *Config) LdapChangeUserPassword(domain, user, newpassword string) error {
 
 	conn, err := c.GetConn(domain)
 	if err != nil {
-		log.Println(err)
-		return false
+		return err
 	}
 	defer conn.Close()
 	utf16 := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM)
 
 	pwdEncoded, err := utf16.NewEncoder().String("\"" + newpassword + "\"")
 	if err != nil {
-		log.Println(err)
-		return false
+		return err
 	}
 
 	modReq := ldap.NewModifyRequest(user, []ldap.Control{})
 	modReq.Replace("unicodePwd", []string{pwdEncoded})
 	if err := conn.Modify(modReq); err != nil {
-		log.Println("error setting user password:", modReq, err)
-		return false
+		return err
 	}
 
-	fmt.Println("DONE")
-	return true
+	return nil
 }
 
 //func (l *LdapConnection) LdapUserActivate(user, group string) {
