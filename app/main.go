@@ -25,6 +25,10 @@ func main() {
 		}
 	}
 
+	//TODO
+	//fmt.Println(config.Cfg.Servers["ar.local"].Password)
+	//os.Exit(1)
+
 	http.HandleFunc("/ldap", config.Cfg.LdapHandler)
 	log.Println("Starting webserver...")
 	err = http.ListenAndServe(":8085", nil)
