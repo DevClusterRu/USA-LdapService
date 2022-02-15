@@ -1,0 +1,22 @@
+Создание OU:
+{
+"command": "CreateOrganization",
+"domain" : "test.lab",
+"organization" : "OU=KikosGr7,DC=test,DC=lab",
+"group" : "KikosGr7 - Группы доступа"
+}
+
+Создание группы:
+{
+"command": "CreateGroup",
+"domain" : "test.lab",
+"baseDN" : "DC=test,DC=lab",
+"group" : "GogiGroup"
+}
+
+Удаление объекта
+{
+"command": "DeleteObject",
+"domain" : "test.lab",
+"name" : "OU=KikosGr7,DC=test,DC=lab"
+}
