@@ -206,7 +206,6 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 		}
 		i := 0
 		errors:=""
-
 		for i = 1; i < 4; i++ {
 			fmt.Println("Attempt #", i)
 			err:= c.LdapUserDeactivate(params["name"],params["domain"])
@@ -214,11 +213,6 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 				fmt.Fprintf(w, answerPack(true, "success"))
 				return
 			}
-			//err = c.LdapUserDeactivate(params["name"],params["domain"])
-			//if err==nil{
-			//	fmt.Fprintf(w, answerPack(true, "success"))
-			//	return
-			//}
 			errors+="\n"+err.Error()
 			time.Sleep(100 * time.Millisecond)
 		}
@@ -226,7 +220,6 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 	default:
 		fmt.Fprintf(w, "Unknown command: %s", val)
 	}
-
 
 }
 
