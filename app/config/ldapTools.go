@@ -92,7 +92,7 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 		}
 		fmt.Fprintf(w, answerPack(false, errors))
 	case "CreateUser":
-		if !checkRequersStructure([]string{"name", "baseDN", "domain"}, params) {
+		if !checkRequersStructure([]string{"name", "baseDN", "domain", "phone", "email"}, params) {
 			fmt.Fprintf(w, "Wrong parameters, good bye", val)
 			return
 		}
@@ -100,7 +100,7 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 		errors:=""
 		for i = 1; i < 4; i++ {
 			fmt.Println("Attempt #", i)
-			err:= c.LdapCreateNewUser(params["name"],params["baseDN"],params["domain"])
+			err:= c.LdapCreateNewUser(params["name"],params["phone"],params["email"],params["baseDN"],params["domain"])
 			if err==nil{
 				fmt.Fprintf(w, answerPack(true, "success"))
 				return
@@ -224,6 +224,9 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func (c *Config) GetConn(server string) (*ldap.Conn, error) {
+	if _, ok:= c.Servers[server]; !ok{
+		return nil, fmt.Errorf("Wrong server name: ",server)
+	}
 	conn, err := ldap.DialURL(c.Servers[server].Urls[0], ldap.DialWithTLSConfig(&tls.Config{InsecureSkipVerify: true}))
 	log.Println(c.Servers[server].Urls[0])
 	if err != nil {
@@ -303,14 +306,15 @@ func (c *Config) LdapCreateGroup(group, baseDN, domain string) error{
 }
 
 
-func  (c *Config) LdapCreateNewUser(name, group, domain string) error{
+func  (c *Config) LdapCreateNewUser(name, phone, email, group, domain string) error{
 	addReq := ldap.NewAddRequest(fmt.Sprintf("CN=%s,%s", name, group), []ldap.Control{})
 	addReq.Attribute("objectClass", []string{"top", "organizationalPerson", "user", "person"})
 	addReq.Attribute("name", []string{name})
 	addReq.Attribute("sAMAccountName", []string{name})
 	addReq.Attribute("userAccountControl", []string{fmt.Sprintf("%d", 0x0202)})
 	addReq.Attribute("instanceType", []string{fmt.Sprintf("%d", 0x00000004)})
-	addReq.Attribute("userPrincipalName", []string{fmt.Sprintf("%s@example.com", name)})
+	addReq.Attribute("userPrincipalName", []string{email})
+	addReq.Attribute("telephoneNumber", []string{phone})
 	addReq.Attribute("accountExpires", []string{fmt.Sprintf("%d", 0x00000000)})
 	return c.LdapSendAddRequest(addReq, domain)
 }
