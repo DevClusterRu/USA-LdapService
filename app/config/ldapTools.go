@@ -135,7 +135,7 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 		errors := ""
 		for i = 1; i < 4; i++ {
 			fmt.Println("Attempt #", i)
-			err := c.LdapCreateGroup(params["group"], params["organizationName"], params["baseDN"], params["domain"])
+			err := c.LdapCreateGroup(params["group"], params["baseDN"], params["domain"])
 			if err == nil {
 				fmt.Fprintf(w, answerPack(true, "success"))
 				return
@@ -294,11 +294,11 @@ func (c *Config) LdapCreateOrganization(group, baseDN, domain string) error {
 	return c.LdapSendAddRequest(addReq, domain)
 }
 
-func (c *Config) LdapCreateGroup(group, organizationName, baseDN, domain string) error {
+func (c *Config) LdapCreateGroup(group, baseDN, domain string) error {
 	addReq := ldap.NewAddRequest(fmt.Sprintf("CN=%s,%s", group, baseDN), []ldap.Control{})
 	addReq.Attribute("objectClass", []string{"top", "group"})
 	addReq.Attribute("sAMAccountName", []string{group})
-	addReq.Attribute("name", []string{organizationName + " - " + group})
+	addReq.Attribute("name", []string{group})
 	addReq.Attribute("instanceType", []string{fmt.Sprintf("%d", 0x00000004)})
 	return c.LdapSendAddRequest(addReq, domain)
 }
