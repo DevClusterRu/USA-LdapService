@@ -163,6 +163,24 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 			time.Sleep(100 * time.Millisecond)
 		}
 		fmt.Fprintf(w, answerPack(false, errors))
+	case "UnassignUser":
+		if !checkRequersStructure([]string{"targetGroup", "user", "domain"}, params) {
+			fmt.Fprintf(w, "Wrong parameters, good bye", val)
+			return
+		}
+		i := 0
+		errors:=""
+		for i = 1; i < 4; i++ {
+			fmt.Println("Attempt #", i)
+			err:= c.LdapUnAssignUserToGroup(params["targetGroup"],params["user"],params["domain"])
+			if err==nil{
+				fmt.Fprintf(w, answerPack(true, "success"))
+				return
+			}
+			errors+="\n"+err.Error()
+			time.Sleep(100 * time.Millisecond)
+		}
+		fmt.Fprintf(w, answerPack(false, errors))
 	case "DeleteObject":
 		if !checkRequersStructure([]string{"name", "domain"}, params) {
 			fmt.Fprintf(w, "Wrong parameters, good bye", val)
@@ -217,6 +235,25 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 			time.Sleep(100 * time.Millisecond)
 		}
 		fmt.Fprintf(w, answerPack(false, errors))
+	case "EditUser":
+		if !checkRequersStructure([]string{"name", "baseDN", "domain", "phone", "email"}, params) {
+			fmt.Fprintf(w, "Wrong parameters, good bye", val)
+			return
+		}
+		i := 0
+		errors:=""
+		for i = 1; i < 4; i++ {
+			fmt.Println("Attempt #", i)
+			err:= c.LdapEditUser(params["name"],params["phone"],params["email"],params["baseDN"],params["domain"])
+			if err==nil{
+				fmt.Fprintf(w, answerPack(true, "success"))
+				return
+			}
+			errors+="\n"+err.Error()
+			time.Sleep(100 * time.Millisecond)
+		}
+		fmt.Fprintf(w, answerPack(false, errors))
+
 	default:
 		fmt.Fprintf(w, "Unknown command: %s", val)
 	}
@@ -319,6 +356,16 @@ func  (c *Config) LdapCreateNewUser(name, phone, email, group, domain string) er
 	return c.LdapSendAddRequest(addReq, domain)
 }
 
+func  (c *Config) LdapEditUser(name, phone, email, group, domain string) error{
+	modReq := ldap.NewModifyRequest(fmt.Sprintf("CN=%s,%s", name, group), []ldap.Control{})
+	modReq.Replace("name", []string{name})
+	modReq.Replace("sAMAccountName", []string{name})
+	modReq.Replace("userPrincipalName", []string{email})
+	modReq.Replace("telephoneNumber", []string{phone})
+	return c.LdapSendModifyRequest(modReq, domain)
+}
+
+
 func (c *Config) LdapChangeUserPassword(domain, user, newpassword string) error {
 	utf16 := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM)
 	pwdEncoded, err := utf16.NewEncoder().String("\"" + newpassword + "\"")
@@ -335,6 +382,13 @@ func (c *Config) LdapAssignUserToGroup(targetGroup, user, domain string) error {
 	modReq.Add("member", []string{user})
 	return c.LdapSendModifyRequest(modReq, domain)
 }
+
+func (c *Config) LdapUnAssignUserToGroup(targetGroup, user, domain string) error {
+	modReq := ldap.NewModifyRequest(targetGroup, []ldap.Control{})
+	modReq.Delete("member", []string{user})
+	return c.LdapSendModifyRequest(modReq, domain)
+}
+
 
 func  (c *Config) LdapUserActivate(user, domain string) error {
 	modReq := ldap.NewModifyRequest(user, []ldap.Control{})
