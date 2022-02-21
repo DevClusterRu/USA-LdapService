@@ -13,7 +13,7 @@ import (
 )
 
 type Answer struct {
-	Status bool `json:"result"`
+	Status   bool   `json:"result"`
 	Response string `json:"response"`
 }
 
@@ -26,15 +26,14 @@ func checkRequersStructure(need []string, got map[string]string) bool {
 	return true
 }
 
-func answerPack(status bool, response string) string  {
-	a:=Answer{
-		Status: status,
+func answerPack(status bool, response string) string {
+	a := Answer{
+		Status:   status,
 		Response: response,
 	}
-	b,_:=json.Marshal(a)
+	b, _ := json.Marshal(a)
 	return string(b)
 }
-
 
 func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 
@@ -77,17 +76,17 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		newPassword := ""
-		errors:=""
+		errors := ""
 		i := 0
 		for i = 1; i < 4; i++ {
 			newPassword = randomHash.RandomString(10)
 			fmt.Println("Attempt #", i)
-			err:= c.LdapChangeUserPassword(params["domain"], params["user"], newPassword)
-			if err==nil{
+			err := c.LdapChangeUserPassword(params["domain"], params["user"], newPassword)
+			if err == nil {
 				fmt.Fprintf(w, answerPack(true, newPassword))
 				return
 			}
-			errors+="\n"+err.Error()
+			errors += "\n" + err.Error()
 			time.Sleep(100 * time.Millisecond)
 		}
 		fmt.Fprintf(w, answerPack(false, errors))
@@ -97,15 +96,15 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		i := 0
-		errors:=""
+		errors := ""
 		for i = 1; i < 4; i++ {
 			fmt.Println("Attempt #", i)
-			err:= c.LdapCreateNewUser(params["name"],params["phone"],params["email"],params["baseDN"],params["domain"])
-			if err==nil{
+			err := c.LdapCreateNewUser(params["name"], params["phone"], params["email"], params["baseDN"], params["domain"])
+			if err == nil {
 				fmt.Fprintf(w, answerPack(true, "success"))
 				return
 			}
-			errors+="\n"+err.Error()
+			errors += "\n" + err.Error()
 			time.Sleep(100 * time.Millisecond)
 		}
 		fmt.Fprintf(w, answerPack(false, errors))
@@ -115,15 +114,15 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		i := 0
-		errors:=""
+		errors := ""
 		for i = 1; i < 4; i++ {
 			fmt.Println("Attempt #", i)
-			err:= c.LdapCreateOrganization(params["group"],params["baseDN"],params["domain"])
-			if err==nil{
+			err := c.LdapCreateOrganization(params["group"], params["baseDN"], params["domain"])
+			if err == nil {
 				fmt.Fprintf(w, answerPack(true, "success"))
 				return
 			}
-			errors+="\n"+err.Error()
+			errors += "\n" + err.Error()
 			time.Sleep(100 * time.Millisecond)
 		}
 		fmt.Fprintf(w, answerPack(false, errors))
@@ -133,15 +132,15 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		i := 0
-		errors:=""
+		errors := ""
 		for i = 1; i < 4; i++ {
 			fmt.Println("Attempt #", i)
-			err:= c.LdapCreateGroup(params["group"],params["baseDN"],params["domain"])
-			if err==nil{
+			err := c.LdapCreateGroup(params["group"], params["baseDN"], params["domain"])
+			if err == nil {
 				fmt.Fprintf(w, answerPack(true, "success"))
 				return
 			}
-			errors+="\n"+err.Error()
+			errors += "\n" + err.Error()
 			time.Sleep(100 * time.Millisecond)
 		}
 		fmt.Fprintf(w, answerPack(false, errors))
@@ -151,15 +150,15 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		i := 0
-		errors:=""
+		errors := ""
 		for i = 1; i < 4; i++ {
 			fmt.Println("Attempt #", i)
-			err:= c.LdapAssignUserToGroup(params["targetGroup"],params["user"],params["domain"])
-			if err==nil{
+			err := c.LdapAssignUserToGroup(params["targetGroup"], params["user"], params["domain"])
+			if err == nil {
 				fmt.Fprintf(w, answerPack(true, "success"))
 				return
 			}
-			errors+="\n"+err.Error()
+			errors += "\n" + err.Error()
 			time.Sleep(100 * time.Millisecond)
 		}
 		fmt.Fprintf(w, answerPack(false, errors))
@@ -187,15 +186,15 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		i := 0
-		errors:=""
+		errors := ""
 		for i = 1; i < 4; i++ {
 			fmt.Println("Attempt #", i)
-			err:= c.LdapDeleteObject(params["name"],params["domain"])
-			if err==nil{
+			err := c.LdapDeleteObject(params["name"], params["domain"])
+			if err == nil {
 				fmt.Fprintf(w, answerPack(true, "success"))
 				return
 			}
-			errors+="\n"+err.Error()
+			errors += "\n" + err.Error()
 			time.Sleep(100 * time.Millisecond)
 		}
 		fmt.Fprintf(w, answerPack(false, errors))
@@ -205,15 +204,15 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		i := 0
-		errors:=""
+		errors := ""
 		for i = 1; i < 4; i++ {
 			fmt.Println("Attempt #", i)
-			err:= c.LdapUserActivate(params["name"],params["domain"])
-			if err==nil{
+			err := c.LdapUserActivate(params["name"], params["domain"])
+			if err == nil {
 				fmt.Fprintf(w, answerPack(true, "success"))
 				return
 			}
-			errors+="\n"+err.Error()
+			errors += "\n" + err.Error()
 			time.Sleep(100 * time.Millisecond)
 		}
 		fmt.Fprintf(w, answerPack(false, errors))
@@ -223,15 +222,15 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		i := 0
-		errors:=""
+		errors := ""
 		for i = 1; i < 4; i++ {
 			fmt.Println("Attempt #", i)
-			err:= c.LdapUserDeactivate(params["name"],params["domain"])
-			if err==nil{
+			err := c.LdapUserDeactivate(params["name"], params["domain"])
+			if err == nil {
 				fmt.Fprintf(w, answerPack(true, "success"))
 				return
 			}
-			errors+="\n"+err.Error()
+			errors += "\n" + err.Error()
 			time.Sleep(100 * time.Millisecond)
 		}
 		fmt.Fprintf(w, answerPack(false, errors))
@@ -261,8 +260,8 @@ func (c *Config) LdapHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func (c *Config) GetConn(server string) (*ldap.Conn, error) {
-	if _, ok:= c.Servers[server]; !ok{
-		return nil, fmt.Errorf("Wrong server name: ",server)
+	if _, ok := c.Servers[server]; !ok {
+		return nil, fmt.Errorf("Wrong server name: ", server)
 	}
 	conn, err := ldap.DialURL(c.Servers[server].Urls[0], ldap.DialWithTLSConfig(&tls.Config{InsecureSkipVerify: true}))
 	log.Println(c.Servers[server].Urls[0])
@@ -296,36 +295,35 @@ func (c *Config) GetConn(server string) (*ldap.Conn, error) {
 //	//return
 //}
 
-func (c *Config) LdapSendAddRequest(addReq *ldap.AddRequest, domain string) error{
+func (c *Config) LdapSendAddRequest(addReq *ldap.AddRequest, domain string) error {
 	conn, err := c.GetConn(domain)
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
-	return conn.Add(addReq);
+	return conn.Add(addReq)
 }
 
-func (c *Config) LdapSendModifyRequest(addReq *ldap.ModifyRequest, domain string) error{
+func (c *Config) LdapSendModifyRequest(addReq *ldap.ModifyRequest, domain string) error {
 	conn, err := c.GetConn(domain)
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
-	return conn.Modify(addReq);
+	return conn.Modify(addReq)
 }
 
-func (c *Config) LdapSendDeleteRequest(delReq *ldap.DelRequest, domain string) error{
+func (c *Config) LdapSendDeleteRequest(delReq *ldap.DelRequest, domain string) error {
 	conn, err := c.GetConn(domain)
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
-	return conn.Del(delReq);
+	return conn.Del(delReq)
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-func (c *Config) LdapCreateOrganization(group, baseDN, domain string) error{
+func (c *Config) LdapCreateOrganization(group, baseDN, domain string) error {
 	addReq := ldap.NewAddRequest(fmt.Sprintf("OU=%s,%s", group, baseDN), []ldap.Control{})
 	addReq.Attribute("objectClass", []string{"top", "organizationalUnit"})
 	addReq.Attribute("name", []string{group})
@@ -333,7 +331,7 @@ func (c *Config) LdapCreateOrganization(group, baseDN, domain string) error{
 	return c.LdapSendAddRequest(addReq, domain)
 }
 
-func (c *Config) LdapCreateGroup(group, baseDN, domain string) error{
+func (c *Config) LdapCreateGroup(group, baseDN, domain string) error {
 	addReq := ldap.NewAddRequest(fmt.Sprintf("CN=%s,%s", group, baseDN), []ldap.Control{})
 	addReq.Attribute("objectClass", []string{"top", "group"})
 	addReq.Attribute("sAMAccountName", []string{group})
@@ -342,8 +340,7 @@ func (c *Config) LdapCreateGroup(group, baseDN, domain string) error{
 	return c.LdapSendAddRequest(addReq, domain)
 }
 
-
-func  (c *Config) LdapCreateNewUser(name, phone, email, group, domain string) error{
+func (c *Config) LdapCreateNewUser(name, phone, email, group, domain string) error {
 	addReq := ldap.NewAddRequest(fmt.Sprintf("CN=%s,%s", name, group), []ldap.Control{})
 	addReq.Attribute("objectClass", []string{"top", "organizationalPerson", "user", "person"})
 	addReq.Attribute("name", []string{name})
@@ -396,21 +393,16 @@ func  (c *Config) LdapUserActivate(user, domain string) error {
 	return c.LdapSendModifyRequest(modReq, domain)
 }
 
-func  (c *Config) LdapUserDeactivate(user, domain string) error {
+func (c *Config) LdapUserDeactivate(user, domain string) error {
 	modReq := ldap.NewModifyRequest(user, []ldap.Control{})
 	modReq.Replace("userAccountControl", []string{fmt.Sprintf("%d", 0x0202)})
 	return c.LdapSendModifyRequest(modReq, domain)
 }
 
-
-
 //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-func  (c *Config) LdapDeleteObject(name, domain string) error{
+func (c *Config) LdapDeleteObject(name, domain string) error {
 	delReq := ldap.NewDelRequest(name, []ldap.Control{})
 	return c.LdapSendDeleteRequest(delReq, domain)
 }
-
-
-
