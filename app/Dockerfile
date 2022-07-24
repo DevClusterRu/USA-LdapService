@@ -1,4 +1,4 @@
 FROM golang
 WORKDIR /app
-COPY . .
+COPY .. .
 RUN go mod tidy
